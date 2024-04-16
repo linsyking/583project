@@ -1015,58 +1015,58 @@ static bool optimizeCallInst(CallInst *CI, bool &ModifiedDT,
             break;
         case Intrinsic::masked_load:
             // Scalarize unsupported vector masked load
-            if (TTI.isLegalMaskedLoad(
-                    CI->getType(),
-                    cast<ConstantInt>(CI->getArgOperand(1))->getAlignValue()))
-                return false;
+            // if (TTI.isLegalMaskedLoad(
+            //         CI->getType(),
+            //         cast<ConstantInt>(CI->getArgOperand(1))->getAlignValue()))
+            //     return false;
             scalarizeMaskedLoad(DL, CI, DTU, ModifiedDT);
             return true;
         case Intrinsic::masked_store:
-            if (TTI.isLegalMaskedStore(
-                    CI->getArgOperand(0)->getType(),
-                    cast<ConstantInt>(CI->getArgOperand(2))->getAlignValue()))
-                return false;
+            // if (TTI.isLegalMaskedStore(
+            //         CI->getArgOperand(0)->getType(),
+            //         cast<ConstantInt>(CI->getArgOperand(2))->getAlignValue()))
+            //     return false;
             scalarizeMaskedStore(DL, CI, DTU, ModifiedDT);
             return true;
         case Intrinsic::masked_gather:
         {
-            MaybeAlign MA =
-                cast<ConstantInt>(CI->getArgOperand(1))->getMaybeAlignValue();
-            Type *LoadTy = CI->getType();
-            Align Alignment = DL.getValueOrABITypeAlignment(MA,
-                                                            LoadTy->getScalarType());
-            if (TTI.isLegalMaskedGather(LoadTy, Alignment) &&
-                !TTI.forceScalarizeMaskedGather(cast<VectorType>(LoadTy), Alignment))
-                return false;
+            // MaybeAlign MA =
+            //     cast<ConstantInt>(CI->getArgOperand(1))->getMaybeAlignValue();
+            // Type *LoadTy = CI->getType();
+            // Align Alignment = DL.getValueOrABITypeAlignment(MA,
+            //                                                 LoadTy->getScalarType());
+            // if (TTI.isLegalMaskedGather(LoadTy, Alignment) &&
+            //     !TTI.forceScalarizeMaskedGather(cast<VectorType>(LoadTy), Alignment))
+            //     return false;
             scalarizeMaskedGather(DL, CI, DTU, ModifiedDT);
             return true;
         }
         case Intrinsic::masked_scatter:
         {
-            MaybeAlign MA =
-                cast<ConstantInt>(CI->getArgOperand(2))->getMaybeAlignValue();
-            Type *StoreTy = CI->getArgOperand(0)->getType();
-            Align Alignment = DL.getValueOrABITypeAlignment(MA,
-                                                            StoreTy->getScalarType());
-            if (TTI.isLegalMaskedScatter(StoreTy, Alignment) &&
-                !TTI.forceScalarizeMaskedScatter(cast<VectorType>(StoreTy),
-                                                 Alignment))
-                return false;
+            // MaybeAlign MA =
+            //     cast<ConstantInt>(CI->getArgOperand(2))->getMaybeAlignValue();
+            // Type *StoreTy = CI->getArgOperand(0)->getType();
+            // Align Alignment = DL.getValueOrABITypeAlignment(MA,
+            //                                                 StoreTy->getScalarType());
+            // if (TTI.isLegalMaskedScatter(StoreTy, Alignment) &&
+            //     !TTI.forceScalarizeMaskedScatter(cast<VectorType>(StoreTy),
+            //                                      Alignment))
+            //     return false;
             scalarizeMaskedScatter(DL, CI, DTU, ModifiedDT);
             return true;
         }
         case Intrinsic::masked_expandload:
-            if (TTI.isLegalMaskedExpandLoad(
-                    CI->getType(),
-                    CI->getAttributes().getParamAttrs(0).getAlignment().valueOrOne()))
-                return false;
+            // if (TTI.isLegalMaskedExpandLoad(
+            //         CI->getType(),
+            //         CI->getAttributes().getParamAttrs(0).getAlignment().valueOrOne()))
+            //     return false;
             scalarizeMaskedExpandLoad(DL, CI, DTU, ModifiedDT);
             return true;
         case Intrinsic::masked_compressstore:
-            if (TTI.isLegalMaskedCompressStore(
-                    CI->getArgOperand(0)->getType(),
-                    CI->getAttributes().getParamAttrs(1).getAlignment().valueOrOne()))
-                return false;
+            // if (TTI.isLegalMaskedCompressStore(
+            //         CI->getArgOperand(0)->getType(),
+            //         CI->getAttributes().getParamAttrs(1).getAlignment().valueOrOne()))
+            //     return false;
             scalarizeMaskedCompressStore(DL, CI, DTU, ModifiedDT);
             return true;
         }
