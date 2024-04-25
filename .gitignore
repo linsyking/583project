@@ -2,6 +2,7 @@ build/
 .cache/
 **/dot/
 *.ll
+!*.t.ll
 *.bc
 *.profdata
 *_fplicm

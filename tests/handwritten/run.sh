@@ -4,7 +4,7 @@ PATH2LIB="../../build/src/VECPass.so"
 
 PASS=vecpass
 
-clang -emit-llvm -c ${1}.c -mavx2 -g -S -O3
+clang -emit-llvm -c ${1}.c -mavx2 -S -O3
 
 # llvm-as ${1}.ll
 

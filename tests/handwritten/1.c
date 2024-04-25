@@ -1,4 +1,4 @@
-int c[4];
+int c[1024];
 
 void func(int* a, int *b, int* m) {
     for ( int i = 0; i < 1024; i++ ) {
@@ -12,6 +12,6 @@ void func(int* a, int *b, int* m) {
 }
 
 int main() {
-    int a[1024], b[1024], m[1024];
+    int a[10], b[10], m[1024];
     func(a, b, m);
 }
