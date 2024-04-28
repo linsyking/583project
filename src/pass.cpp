@@ -71,6 +71,7 @@ struct VECPass : public PassInfoMixin<VECPass> {
             builder.SetInsertPoint(branchIns);
             auto *unmaskedLoad = builder.CreateLoad(VectorType, CI->getArgOperand(0));
             // Get alignment from the original masked load
+            // Problem: This is not accurate, we should get the alignment from the original
             unmaskedLoad->setAlignment(CI->getArgOperand(0)->getPointerAlignment(DL));
 
             builder.SetInsertPoint(CI);
