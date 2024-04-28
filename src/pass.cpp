@@ -95,14 +95,17 @@ struct VECPass : public PassInfoMixin<VECPass> {
 const int vecFact = 256;
 struct PaddingPass : public PassInfoMixin<PaddingPass> {
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &FAM) {
-        std::cout << "running" << std::endl;
-        std::cout << "running" << std::endl;
+        std::cout << "running...\n"
+                    << std::endl;
         // static array
         // stack array
-        for (auto &B : F) {
-            for (auto &I : B) {
-                if (auto *AI = dyn_cast<AllocaInst>(&I)) {
-                    std::cout << "alloca" << std::endl;
+        for (auto &B : F)
+        {
+            for (auto &I : B)
+            {
+                if (auto *AI = dyn_cast<AllocaInst>(&I))
+                {
+                    std::cout << "found alloca" << std::endl;
 
                     // auto type = AI->getAllocatedType();
                     // std::string typeStr;
@@ -126,30 +129,61 @@ struct PaddingPass : public PassInfoMixin<PaddingPass> {
                     //     Type *type = AI->getAllocatedType();
                     // }
 
-                    if (ArrayType *arrayType = dyn_cast<ArrayType>(AI->getAllocatedType())) {
+                    if (ArrayType *arrayType = dyn_cast<ArrayType>(AI->getAllocatedType()))
+                    {
                         // Now we can get the number of elements in the array.
                         uint64_t numElements = arrayType->getNumElements();
-                        std::cout << "alloca array of size " << numElements << std::endl;
+                        std::cout << "alloca array of " << numElements << " elements " << std::endl;
+
                         Type *elementType = arrayType->getElementType();
-                        // or
-                        DataLayout DL          = F.getParent()->getDataLayout();
-                        uint64_t   elementSize = DL.getTypeAllocSize(elementType);
-                        std::cout << "element size " << elementSize << std::endl;
-                        // calculate Value *ArraySize
-                        uint64_t arraysize =
-                            (numElements / (vecFact / elementSize) + 1) * (vecFact / elementSize);
-                        std::cout << "new array size " << arraysize << std::endl;
-                        Type *int64Type = Type::getInt64Ty(F.getContext());
-                        Value *newArraySize =
-                            ConstantInt::get(int64Type, arraysize, false);
-                        // build new alloc
-                        IRBuilder<> builder(AI);
-                        // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr, arraysize,
-                        // "");
-                    } else {
-                        // This alloca is for a single element, not an array.
-                        std::cout << "alloca single element" << std::endl;
+                        DataLayout DL = F.getParent()->getDataLayout();
+                        uint64_t elementSize = DL.getTypeAllocSize(elementType) * 8;
+                        std::cout << "element size " << elementSize << " bits " << std::endl;
+
+                        uint64_t arraySizeInBits = elementSize * numElements;
+                        std::cout << "array size " << arraySizeInBits << " bits " << std::endl;
+
+                        uint64_t paddingSize = arraySizeInBits % vecFact;
+                        if (paddingSize != 0)
+                        {
+                            std::cout << "padding of size " << paddingSize << " needed" << std::endl;
+
+                            if (paddingSize % elementSize == 0)
+                            {
+                                // calculate Value *ArraySize
+                                uint64_t newArrayLength = numElements + (paddingSize / elementSize);
+                                std::cout << "extend array to " << newArrayLength << " elements " << std::endl;
+
+                                Type *int64Type = Type::getInt64Ty(F.getContext());
+                                Value *newArrayLengthVal =
+                                    ConstantInt::get(int64Type, newArrayLength, false);
+                                newArrayLengthVal->print(llvm::errs()); // 将其打印到stderr，也可以选择其他输出流
+                                llvm::errs() << "\n";
+                                // build new alloc
+                                IRBuilder<> builder(AI);
+                                // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr, arraysize,
+                                // "");
+                            }
+                        }
+                        else
+                            std::cout << "padding not needed" << std::endl;
                     }
+                    else
+                    {
+                        // This alloca is for a single element, not an array.
+                        if (AI->isArrayAllocation())
+                        {
+                            std::cout << "alloca array of variable elements " << std::endl;
+                            llvm::Value *sizeValue = AI->getArraySize(); // 获取数组大小参数
+                            // 输出该值的详细信息，或者进一步分析
+                            if (sizeValue)
+                            {
+                                sizeValue->print(llvm::errs()); // 将其打印到stderr，也可以选择其他输出流
+                                llvm::errs() << "\n";
+                            }
+                        }
+                    }
+                    std::cout << std::endl;
                 }
             }
         }
