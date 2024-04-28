@@ -140,7 +140,8 @@ struct PaddingPass : public PassInfoMixin<PaddingPass> {
                             (numElements / (vecFact / elementSize) + 1) * (vecFact / elementSize);
                         std::cout << "new array size " << arraysize << std::endl;
                         Type *int64Type = Type::getInt64Ty(F.getContext());
-                        Value
+                        Value *newArraySize =
+                            ConstantInt::get(int64Type, arraysize, false);
                         // build new alloc
                         IRBuilder<> builder(AI);
                         // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr, arraysize,
