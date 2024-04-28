@@ -144,27 +144,44 @@ struct PaddingPass : public PassInfoMixin<PaddingPass> {
                         uint64_t arraySizeInBits = elementSize * numElements;
                         std::cout << "array size " << arraySizeInBits << " bits " << std::endl;
 
-                        uint64_t paddingSize = arraySizeInBits % vecFact;
-                        if (paddingSize != 0)
+                        if (arraySizeInBits % vecFact != 0)
                         {
-                            std::cout << "padding of size " << paddingSize << " needed" << std::endl;
+                            uint64_t paddingSize = vecFact - (arraySizeInBits % vecFact);
+                            std::cout << "padding of size " << paddingSize << " bits needed" << std::endl;
 
-                            if (paddingSize % elementSize == 0)
-                            {
-                                // calculate Value *ArraySize
-                                uint64_t newArrayLength = numElements + (paddingSize / elementSize);
-                                std::cout << "extend array to " << newArrayLength << " elements " << std::endl;
+                            auto &context = AI->getContext();
+                            auto paddingType = ArrayType::get(Type::getInt8Ty(context), paddingSize / 8);
 
-                                Type *int64Type = Type::getInt64Ty(F.getContext());
-                                Value *newArrayLengthVal =
-                                    ConstantInt::get(int64Type, newArrayLength, false);
-                                newArrayLengthVal->print(llvm::errs()); // 将其打印到stderr，也可以选择其他输出流
-                                llvm::errs() << "\n";
-                                // build new alloc
-                                IRBuilder<> builder(AI);
-                                // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr, arraysize,
-                                // "");
-                            }
+                            paddingType->print(llvm::errs());
+                            llvm::errs() << "\n";
+
+                            // 创建IRBuilder，它可以帮助我们构建新的指令
+                            IRBuilder<> builder(context);
+
+                            // 将插入点设置为现有alloca指令的位置
+                            builder.SetInsertPoint(AI->getParent(), AI->getIterator());
+
+                            // 现在创建一个新的alloca指令
+                            AllocaInst *newAlloca = builder.CreateAlloca(paddingType, nullptr, "pad");
+
+                            // 设置新alloca的对齐
+                            newAlloca->setAlignment(AI->getAlign());
+                            // if (paddingSize % elementSize == 0)
+                            // {
+                            //     // calculate Value *ArraySize
+                            //     uint64_t newArrayLength = numElements + (paddingSize / elementSize);
+                            //     std::cout << "extend array to " << newArrayLength << " elements " << std::endl;
+
+                            //     Type *int64Type = Type::getInt64Ty(F.getContext());
+                            //     Value *newArrayLengthVal =
+                            //         ConstantInt::get(int64Type, newArrayLength, false);
+                            //     newArrayLengthVal->print(llvm::errs()); // 将其打印到stderr，也可以选择其他输出流
+                            //     llvm::errs() << "\n";
+                            //     // build new alloc
+                            //     IRBuilder<> builder(AI);
+                            //     // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr, arraysize,
+                            //     // "");
+                            // }
                         }
                         else
                             std::cout << "padding not needed" << std::endl;
