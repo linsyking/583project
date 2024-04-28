@@ -5,15 +5,15 @@ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 @array = global [4 x i32] [i32 1, i32 2, i32 3, i32 4]
-@mask = global [4 x i1] [i1 true, i1 false, i1 true, i1 false]
+@mask = global [4 x i1] [i1 true, i1 true, i1 true, i1 true]
 
 ; Function to demonstrate masked load
 define void @useMaskedLoad(i32* %base, i1* %mask) {
 entry:
-  %vec_ptr = bitcast i32* %base to <4 x i32>*
-  %mask_vec = bitcast i1* %mask to <4 x i1>*
-  %true_mask = load <4 x i1>, <4 x i1>* %mask_vec, align 1
-  %loaded_values = call <4 x i32> @llvm.masked.load.v4i32(<4 x i32>* %vec_ptr, i32 4, <4 x i1> %true_mask, <4 x i32> undef)
+  %rp = getelementptr i32, i32* %base, i32 0
+  %true_mask = load <4 x i1>, <4 x i1>* %mask, align 1
+  %loaded_values = call <4 x i32> @llvm.masked.load.v4i32(<4 x i32>* %rp, i32 4, <4 x i1> %true_mask, <4 x i32> poison)
+  %res = add nsw <4 x i32> %loaded_values, %loaded_values
   ret void
 }
 
