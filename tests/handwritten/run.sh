@@ -16,8 +16,8 @@ opt -load-pass-plugin="${PATH2LIB}" -passes="${PASS}" ${1}.ll -S -o ${1}.vecpass
 
 opt -load-pass-plugin="${PATH2LIB}" -passes="${PASS}" ${1}.ll -o ${1}.vecpass.bc
 
-clang ${1}.vecpass.bc -o ${1}_vec
+clang ${1}.vecpass.bc -fstack-protector-strong -o ${1}_vec
 
 ./${1}_vec
 
-rm ${1}_vec ${1}.vecpass.bc
+rm ${1}_vec ${1}.vecpass.bc ${1}
