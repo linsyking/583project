@@ -67,6 +67,7 @@ struct VECPass : public PassInfoMixin<VECPass> {
         auto DL = DataLayout(F.getParent());
 
         for (auto *CI : MaskedLoadInstructions) {
+            outs() << "Optimizing 1 masked load\n";
             BasicBlock *BB         = CI->getParent();
             Type       *VectorType = CI->getCalledFunction()->getReturnType();
             builder.SetInsertPoint(CI);
@@ -108,6 +109,7 @@ struct VECPass : public PassInfoMixin<VECPass> {
         }
 
         for (auto *CI : MaskedStoreInstructions) {
+            outs() << "Optimizing 1 masked store\n";
             BasicBlock *BB         = CI->getParent();
             auto       *storeFrom  = CI->getArgOperand(0);
             auto       *storeTo    = CI->getArgOperand(1);
