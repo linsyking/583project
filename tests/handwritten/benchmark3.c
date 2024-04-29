@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define ARRAY_SIZE     8192
-#define NUM_ITERATIONS 500000
+#define NUM_ITERATIONS 200000
 
 int c[ARRAY_SIZE] = {};
 
@@ -10,9 +10,9 @@ void func(int *a, int *b, int *m) {
 #pragma nounroll
     for (int i = 0; i < ARRAY_SIZE; i++) {
         if (m[i] < 0) {
-            c[i] = a[i] + b[i];
+            a[i] = b[i] + 1;
         } else {
-            c[i] = 1;
+            c[i] = a[i] * 5 + 1;
         }
     }
 }
@@ -379,18 +379,19 @@ int main() {
         38, 15, 61, 70, 36, 58, 14, 49, 19, 88, 42, 90, 18, 75, 21, 2,  51, 28, 95, 47, 82, 99, 29,
         73, 71, 24, 99, 61, 96, 50, 30, 34, 66, 43, 5,  2,  1,  71, 51, 72, 11, 45, 62, 30, 73, 35,
         32, 24};
-
     static int m[ARRAY_SIZE] = {};
 
     for (int i = 0; i < ARRAY_SIZE / 2; ++i) {
         m[i] = rand() % 2 - 1;
     }
-
     for (int j = 0; j < NUM_ITERATIONS; j++) {
         func(a, b, m);
     }
 
-    for (int i = 0; i < ARRAY_SIZE; i++) {
+    for (int i = 0; i < ARRAY_SIZE / 2; i++) {
+        printf("%d %d %d\n", a[i], b[i], c[i]);
+    }
+    for (int i = ARRAY_SIZE / 2; i < ARRAY_SIZE; i++) {
         printf("%d\n", c[i]);
     }
 

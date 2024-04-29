@@ -1,5 +1,5 @@
 #include <stdio.h>
-int c[1024] = {};
+int c[1024] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 void func(int *a, int *m) {
 #pragma nounroll
@@ -13,16 +13,20 @@ void func(int *a, int *m) {
 }
 
 int main() {
-    int a[16]  = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1};
+    int a[16]   = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1};
     int m[1024] = {};
-    // a[10] = 0;
-    #pragma nounroll
-    for (int i = 0; i < 12; ++i) {
-        m[i] = -1;
+
+#pragma nounroll
+    for (int i = 0; i < 8; ++i) {
+        m[i] = -3;
     }
     func(a, m);
 #pragma nounroll
     for (int i = 0; i < 16; i++) {
-        printf("%d\n", c[i]);
+        printf("c %d\n", c[i]);
+    }
+#pragma nounroll
+    for (int i = 0; i < 16; i++) {
+        printf("a %d\n", a[i]);
     }
 }
