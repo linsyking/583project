@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH2LIB="../build/VECPass/VECPass.so"
+PATH2LIB="../../build/src/VECPass.so"
 
 PASS=paddingpass
 

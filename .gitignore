@@ -8,3 +8,4 @@ build/
 *_fplicm
 *.profraw
 *_prof
+!tests/handwritten/*.ll
