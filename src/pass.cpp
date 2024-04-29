@@ -119,11 +119,29 @@ struct VECPass : public PassInfoMixin<VECPass> {
             auto *maskTy  = mask->getType();
             auto  numBits = DL.getTypeSizeInBits(maskTy);
 
-            auto *storeToLoad = builder.CreateAlignedLoad(
+
+            auto *intTy     = IntegerType::get(maskTy->getContext(), numBits);
+            auto *castInstr = builder.CreateBitCast(mask, intTy);
+            // Step 2.2: Guard the load with branch
+
+            auto *cmpInst =
+                builder.CreateICmpEQ(castInstr, ConstantInt::get(castInstr->getType(), -1));
+            auto *branchIns = llvm::SplitBlockAndInsertIfElse(cmpInst, CI, false);
+            builder.SetInsertPoint(branchIns);
+            auto *unmaskedLoad = builder.CreateAlignedLoad(
                 VectorType, storeTo,
                 MaybeAlign(cast<ConstantInt>(CI->getArgOperand(2))->getAlignValue()));
+            
+
+            builder.SetInsertPoint(CI);
             // Use phi node to merge the results
-            auto *selectInst = builder.CreateSelect(mask, storeFrom, storeToLoad);
+            auto *phi = builder.CreatePHI(VectorType, 2);
+            phi->addIncoming(unmaskedLoad, unmaskedLoad->getParent());
+            // Undef value
+            phi->addIncoming(UndefValue::get(VectorType), BB);
+
+            // Use phi node to merge the results
+            auto *selectInst = builder.CreateSelect(mask, storeFrom, phi);
             builder.CreateAlignedStore(selectInst, storeTo,
                                        MaybeAlign(cast<ConstantInt>(CI->getArgOperand(2))->getAlignValue()));
             CI->eraseFromParent();
