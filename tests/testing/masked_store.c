@@ -5,7 +5,7 @@ void func(int *a, int *m) {
 #pragma nounroll
     for (int i = 0; i < 1024; i++) {
         if (m[i] < 0) {
-            // a[i] = 0;
+            a[i] = 0;
         } else {
             c[i] = 1;
         }
