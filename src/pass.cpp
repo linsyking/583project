@@ -211,50 +211,23 @@ struct PaddingPass : public PassInfoMixin<PaddingPass> {
 
                             paddingType->print(llvm::errs());
                             llvm::errs() << "\n";
-
-                            // 创建IRBuilder，它可以帮助我们构建新的指令
                             IRBuilder<> builder(context);
-
-                            // 将插入点设置为现有alloca指令的位置
                             builder.SetInsertPoint(AI->getParent(), AI->getIterator());
-
-                            // 现在创建一个新的alloca指令
                             AllocaInst *newAlloca =
                                 builder.CreateAlloca(paddingType, nullptr, "pad");
-
-                            // 设置新alloca的对齐
                             newAlloca->setAlignment(AI->getAlign());
-                            // if (paddingSize % elementSize == 0)
-                            // {
-                            //     // calculate Value *ArraySize
-                            //     uint64_t newArrayLength = numElements + (paddingSize /
-                            //     elementSize); std::cout << "extend array to " << newArrayLength
-                            //     << " elements " << std::endl;
-
-                            //     Type *int64Type = Type::getInt64Ty(F.getContext());
-                            //     Value *newArrayLengthVal =
-                            //         ConstantInt::get(int64Type, newArrayLength, false);
-                            //     newArrayLengthVal->print(llvm::errs()); //
-                            //     将其打印到stderr，也可以选择其他输出流 llvm::errs() << "\n";
-                            //     // build new alloc
-                            //     IRBuilder<> builder(AI);
-                            //     // AllocaInst *newAI = builder.CreateAlloca(elementType, nullptr,
-                            //     arraysize,
-                            //     // "");
-                            // }
                         } else
                             std::cout << "padding not needed" << std::endl;
                     } else {
                         // This alloca is for a single element, not an array.
                         if (AI->isArrayAllocation()) {
                             std::cout << "alloca array of variable elements " << std::endl;
-                            llvm::Value *sizeValue = AI->getArraySize();  // 获取数组大小参数
-                            // 输出该值的详细信息，或者进一步分析
-                            if (sizeValue) {
-                                sizeValue->print(
-                                    llvm::errs());  // 将其打印到stderr，也可以选择其他输出流
-                                llvm::errs() << "\n";
-                            }
+                            // llvm::Value *sizeValue = AI->getArraySize();
+                            // if (sizeValue) {
+                            //     sizeValue->print(
+                            //         llvm::errs());
+                            //     llvm::errs() << "\n";
+                            // }
                         }
                     }
                     std::cout << std::endl;
